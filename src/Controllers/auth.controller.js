@@ -6,22 +6,32 @@ const client = require("twilio")(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, {
 
 const signUp = async (req, res, next) => {
     try {
-        const data = new Driver(req.body);
-        Driver.signUp(data, async(err, response) => {
+        Driver.FindDriverByNumber(req.body.number, (err, res1) => {
             if (err) {
-                next(new Error(err));
+                next(err);
             } else {
-                const otpResponse = await client.verify.v2
-                    .services(TWILIO_SERVICE_SID)
-                    .verifications.create({
-                        to: `${req.body.number}`,
-                        channel: "sms",
+                if (res1.length === 0) {
+                    const data = new Driver(req.body);
+                    Driver.signUp(data, async (err, response) => {
+                        if (err) {
+                            next(new Error(err));
+                        } else {
+                            const otpResponse = await client.verify.v2
+                                .services(TWILIO_SERVICE_SID)
+                                .verifications.create({
+                                    to: `${req.body.number}`,
+                                    channel: "sms",
+                                });
+                            if (otpResponse) {
+                                res.status(200).send({message: `OTP sent successfully to ${req.body.number}!`, data: response.insertId});
+                            }
+                        }
                     });
-                if (otpResponse) {
-                    res.status(200).send(`OTP sent successfully to ${req.body.number}!`);
+                } else {
+                    next(new Error("Driver with this number is already registered."));
                 }
             }
-        });
+        })
     } catch (error) {
         res.status(error?.status || 400).send(error?.message || 'Something went wrong!');
     }
@@ -37,8 +47,8 @@ const verifyOTP = async (req, res, next) => {
                 code: otp,
             });
         if (verifiedResponse) {
-            Driver.activeDriver(number, (err, response)=> {
-                if(err){
+            Driver.activeDriver(number, (err, response) => {
+                if (err) {
                     next(new Error(err));
                 } else {
                     res.status(200).send(`OTP verified successfully!`);
@@ -50,7 +60,16 @@ const verifyOTP = async (req, res, next) => {
     }
 }
 
+const basicInfo = async(req, res, next)=> {
+    try {
+        console.log(req);
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     signUp,
-    verifyOTP
+    verifyOTP,
+    basicInfo
 }

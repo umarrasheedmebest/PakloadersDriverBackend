@@ -43,6 +43,21 @@ Driver.signUp = (data, result)=> {
     }
 }
 
+Driver.FindDriverByNumber = (data, result)=> {
+    try {
+        const query = `SELECT * FROM register_driver WHERE number = '${data}'`;
+        db.query(query, (err, sqlresult)=> {
+            if(err) {
+                result(err, undefined);
+            } else {
+                result(undefined, sqlresult);
+            }
+        })
+    } catch (error) {
+        result(error, undefined);
+    }
+}
+
 Driver.activeDriver = (data, result)=> {
     try {
         const query = `UPDATE register_driver SET is_active=1 WHERE number='${data}'`;

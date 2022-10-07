@@ -9,7 +9,7 @@ dotenv.config();
 const authRoute = require('./src/Routes/auth.route');
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "/Images")));
+app.use('/Images',express.static(path.join(__dirname, "/Images")));
 
 // Routes
 app.use("/auth", authRoute);

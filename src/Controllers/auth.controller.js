@@ -62,7 +62,7 @@ const verifyOTP = async (req, res, next) => {
 
 const basicInfo = async(req, res, next)=> {
     try {
-        console.log(req);
+        res.send("ok")
     } catch (error) {
         next(error);
     }

@@ -2,10 +2,10 @@ const multer = require("multer");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb("images Folder Not Read as Destination","Images");
+        cb(null,"./../Images");
     },
-    filename: (req, res, cb) => {
-        cb(null, req.body.file);
+    filename: (req, file, cb) => {
+        cb(null, file.fieldname);
     }
 })
 

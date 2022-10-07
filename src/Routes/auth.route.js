@@ -4,6 +4,6 @@ const Upload = require('./../Utilities/Upload');
 
 router.post("/signup", authController.signUp);
 router.post("/verify-otp", authController.verifyOTP);
-router.post("/basic-info", Upload.single("image"), authController.basicInfo);
+router.post("/basic-info", Upload.single("file"), authController.basicInfo);
 
 module.exports = router;

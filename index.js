@@ -9,6 +9,7 @@ dotenv.config();
 
 const authRoute = require('./src/Routes/auth.route');
 const driverRoute = require('./src/Routes/driver.route');
+const bidsRoute = require('./src/Routes/bids.route');
 
 // Middlewares
 app.use(cookieParser());
@@ -18,6 +19,7 @@ app.use("/images", express.static(path.join(__dirname, "/Images")))
 // Routes
 app.use("/auth", authRoute);
 app.use("/driver", driverRoute);
+app.use("/bids", bidsRoute);
 
 // Error Handlers
 app.use((req, res, next)=>{

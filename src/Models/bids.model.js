@@ -1,7 +1,7 @@
 const db = require('./../Utilities/config.db');
 
 class Bids {
-    driver_id;
+    driver_id; 
     post_id;
     bid_amount;
     is_active;

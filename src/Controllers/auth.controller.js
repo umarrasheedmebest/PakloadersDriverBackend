@@ -4,32 +4,76 @@ const { TWILIO_SERVICE_SID, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } = process.en
 const client = require("twilio")(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, {
     lazyLoading: true
 });
+const speakeasy = require('speakeasy');
+var https = require("https");
+const { signUpSchema, signInSchema } = require('../Utilities/validations')
+const { APIKey } = process.env;
 
 const signUp = async (req, res, next) => {
     try {
-        Driver.FindDriverByNumber(req.body.number, (err, res1) => {
+        const data = await signUpSchema.validateAsync(req.body)
+        Driver.FindDriverByNumber(data.number, (err, res1) => {
             if (err) {
                 next(err);
             } else {
                 if (res1.length === 0) {
-                    const data = new Driver(req.body);
-                    Driver.signUp(data, async (err, response) => {
-                        if (err) {
-                            next(new Error(err));
-                        } else {
-                            const otpResponse = await client.verify.v2
-                                .services(TWILIO_SERVICE_SID)
-                                .verifications.create({
-                                    to: `${req.body.number}`,
-                                    channel: "sms",
-                                });
-                            if (otpResponse) {
-                                res.status(200).send({ message: `OTP sent successfully to ${req.body.number}!`, data: response.insertId });
-                            }
-                        }
+                    const secret = speakeasy.generateSecret({ length: 20 });
+                    const token = speakeasy.totp({
+                        secret: secret.base32,
+                        algorithm: 'sha1',
+                        encoding: 'base32'
                     });
+                    if (token) {
+                        const smsPromise = new Promise((resolve, reject) => {
+
+                            var sender = '8586';
+                            var options = {
+                                host: 'api.veevotech.com',
+                                port: 443,
+                                path: "/sendsms?hash=" + APIKey + "&receivenum=" + data.number + "&sendernum=" + encodeURIComponent(sender) + "&textmessage=" + encodeURIComponent("Verification OTP for Pakloaders is " + token),
+                                method: 'GET',
+                                setTimeout: 30000
+                            };
+                            var req = https.request(options, function (res) {
+                                res.setEncoding('utf8');
+                                res.on('data', function (chunk) {
+                                    // console.log(chunk.toString());
+                                    if (chunk.includes("ACCEPTED")) {
+                                        resolve(true)
+                                    } else {
+                                        reject(false);
+                                    }
+                                });
+
+                            });
+                            req.on('error', function (e) {
+                                reject(e.message)
+                            });
+
+                            req.end();
+
+                        });
+                        smsPromise.then(() => {
+                            res.status(200).send(
+
+                                {
+                                    message: "OTP sent to " + data.number + " Please verify your number",
+
+                                    data: data.number,
+                                    token: token,
+                                    secret: secret
+
+                                }
+                            )
+                        }).catch((error) => {
+                            res.status(401).send(error);
+                        });
+                    } else {
+                        res.status(201).send("Something went wrong. Please try again");
+
+                    }
                 } else {
-                    next(new Error("Driver with this number is already registered."));
+                    res.status(201).send("Driver with this number is already registered.");
                 }
             }
         })
@@ -98,8 +142,8 @@ const loginVerify = async (req, res, next) => {
                 code: otp,
             });
         if (verifiedResponse) {
-            Driver.FindDriverByNumber(number, async (err, response)=> {
-                if(err) {
+            Driver.FindDriverByNumber(number, async (err, response) => {
+                if (err) {
                     next(err);
                 } else {
                     const driverId = response[0].id.toString();
@@ -107,10 +151,10 @@ const loginVerify = async (req, res, next) => {
                     const refreshToken = await signRefreshToken(driverId);
                     res.cookie('accessToken', `bearer ${accessToken}`, {
                         httpOnly: false,
-                        path:  '/', 
-                        maxAge: 60*60*60*1000
+                        path: '/',
+                        maxAge: 60 * 60 * 60 * 1000
                     });
-                    res.status(200).send({message:"OTP Verified Successfully",refreshToken:`bearer ${refreshToken}`});
+                    res.status(200).send({ message: "OTP Verified Successfully", refreshToken: `bearer ${refreshToken}` });
                 }
             })
         }

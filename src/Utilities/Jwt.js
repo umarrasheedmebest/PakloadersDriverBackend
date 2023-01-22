@@ -1,15 +1,13 @@
 const JWT = require("jsonwebtoken");
 
-const signAccessToken = async (driverId) => {
+const signAccessToken = async (userID) => {
     return new Promise((resolve, reject) => {
-        const payload = {
-
-        };
+        const payload = {};
         const secret = process.env.ACCESS_TOKEN_SECRET;
         const options = {
-            expiresIn: "30h",
+            expiresIn: "9999999999999999999h",
             issuer: "PakLoaders",
-            audience: driverId,
+            audience: userID.toString(),
         };
         JWT.sign(payload, secret, options, (err, token) => {
             if (err) {
@@ -22,10 +20,10 @@ const signAccessToken = async (driverId) => {
 };
 
 const verifyAccessToken = (req, res, next) => {
-    if (!req.cookies.accessToken) {
+    if (!req.headers.authorization) {
         return next(new Error("Unauthorized error"));
     }
-    const authHeader = req.cookies.accessToken;
+    const authHeader = req.headers.authorization;
     const bearerToken = authHeader.split(" ");
     const token = bearerToken[1];
     JWT.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, payload) => {
@@ -43,6 +41,7 @@ const verifyAccessToken = (req, res, next) => {
             if (err.name === "JsonWebTokenError") {
                 return next(new Error("Unauthorized"));
             } else {
+
                 return next(new Error(err.message));
             }
         } else {

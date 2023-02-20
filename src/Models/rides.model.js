@@ -40,4 +40,18 @@ Rides.startRide = (rideId, result)=> {
         result(error, undefined);
     }
 }
+Rides.endRide = (rideId, result)=> {
+    try {
+        const query = `update rides set ongoing = 0 , completed = 1 where id = ${rideId}`;
+        db.query(query, (err, sqlresult)=> {
+            if(err) {
+                result(err, undefined);
+            } else {
+                result(undefined, sqlresult);
+            }
+        })
+    } catch (error) {
+        result(error, undefined);
+    }
+}
 module.exports = Rides;

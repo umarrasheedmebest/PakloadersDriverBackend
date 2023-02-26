@@ -135,8 +135,11 @@ const login = async (req, res, next) => {
             }
             else {
                 if (Response.length === 0) {
-                    next(new Error("Number Not Registered"))
+                    res.status(201).send("Number not registered")
                 }
+                else if(Response[0].is_active === 0){
+                    res.status(401).send("Your account is inactive. Please contact support team.")
+                  }
                 else {
                     const secret = speakeasy.generateSecret({ length: 20 });
                     const token = speakeasy.totp({

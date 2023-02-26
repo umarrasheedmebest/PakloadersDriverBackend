@@ -43,7 +43,7 @@ Driver.signUp = (data, result)=> {
 
 Driver.FindDriverByNumber = (data, result)=> {
     try {
-        const query = `SELECT * FROM register_driver WHERE number = '${data}'`;
+        const query = `SELECT * FROM register_driver WHERE register_driver.is_deleted=0 AND number = '${data}'`;
         db.query(query, (err, sqlresult)=> {
             if(err) {
                 result(err, undefined);

@@ -133,7 +133,8 @@ const login = async (req, res, next) => {
             if (err) {
                 next(err)
             }
-            else {
+            else { 
+                // response
                 if (Response.length === 0) {
                     res.status(201).send("Number not registered")
                 }

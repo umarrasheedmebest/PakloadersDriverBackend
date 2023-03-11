@@ -3,7 +3,7 @@ const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server, {
     cors: {
-        origin: "http://ec2-18-221-5-46.us-east-2.compute.amazonaws.com/"
+        origin: "http://ec2-18-221-5-46.us-east-2.compute.amazonaws.com:5173"
     }
 });
 const dotenv = require("dotenv");

@@ -1,8 +1,15 @@
 const express = require("express");
 const app = express();
+const server = require("http").Server(app);
+const io = require("socket.io")(server, {
+    cors: {
+        origin: "http://ec2-18-221-5-46.us-east-2.compute.amazonaws.com/"
+    }
+});
 const dotenv = require("dotenv");
 const path = require("path");
 const cookieParser = require('cookie-parser');
+const cors = require("cors")
 
 const port = process.env.PORT || 5002;
 dotenv.config();
@@ -13,6 +20,8 @@ const bidsRoute = require('./src/Routes/bids.route');
 const ridesRoute = require('./src/Routes/rides.route');
 
 // Middlewares
+app.use(cors())
+app.set("io", io);
 app.use(cookieParser());
 app.use(express.json());
 app.use("/images", express.static(path.join(__dirname, "/Images")))
@@ -41,6 +50,6 @@ app.use((err, req, res, next)=>{
     });
 });
 
-app.listen(port, ()=> {
+server.listen(port, ()=> {
     console.log(`Server running on port: ${port}`);
 });

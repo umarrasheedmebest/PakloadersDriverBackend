@@ -25,7 +25,6 @@ class Rides {
     }
 }
 
-
 Rides.startRide = (rideId, result)=> {
     try {
         const query = `update rides set ongoing = 1 , upcoming = 0 where id = ${rideId}`;

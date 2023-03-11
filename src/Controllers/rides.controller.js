@@ -1,20 +1,17 @@
 const Rides = require('./../Models/rides.model');
-// const io = require('socket.io')();
-
 
 const startRide = async(req, res, next)=> {
     try {
-        const rideId = req.params.id
-        const driverId=req.body.driverId
-        const location=req.body.location
+        const rideId = req.params.id;
+        const {longitude, latitude} = req.body;
         Rides.startRide(rideId, (err, response)=> {
             if(err){
                 next(err);
             } else {
+                io.on('connection', (socket) => {
 
-                // io.emit('driver_location', {driverId:driverId,rideId:rideId,location: {
-                //     lat:location.lat,lng:location.lng
-                // }});
+                    socket.emit('location', { longitude, latitude, id: io.id, rideId });
+                });
                 res.status(200).send({message: "Ride started successfully!"});
             }
         })
@@ -30,13 +27,31 @@ const endRide = async(req, res, next)=> {
             if(err){
                 next(err);
             } else {
-                // io.of(`/${rideId}`).clients((error, clients) => {
-                //     if (!error) {
-                //         clients.forEach(clientId => {
-                //             io.sockets.connected[clientId].disconnect();
-                //         });
-                //     }
-                // });
+                const rideSocketsMap = {};
+                io.on('connection', (socket) => {
+
+                    // add socket to the rideSocketsMap
+                    if (!rideSocketsMap[rideId]) {
+                        rideSocketsMap[rideId] = [];
+                    }
+                    rideSocketsMap[rideId].push(socket);
+
+                    socket.on('disconnect', () => {
+                        console.log('user disconnected');
+                        // remove socket from the rideSocketsMap
+                        rideSocketsMap[rideId] = rideSocketsMap[rideId].filter((s) => s !== socket);
+                    });
+
+                    socket.on('disconnect-ride', () => {
+                        // disconnect all sockets associated with the rideId
+                        const sockets = rideSocketsMap[rideId];
+                        if (sockets) {
+                            sockets.forEach((s) => s.disconnect());
+                            delete rideSocketsMap[rideId];
+                            console.log(`Disconnected ${sockets.length} sockets for ride ${rideId}`);
+                        }
+                    });
+                });
                 res.status(200).send({message: "Ride ended successfully!"});
             }
         })

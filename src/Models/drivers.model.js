@@ -55,7 +55,37 @@ Driver.FindDriverByNumber = (data, result)=> {
         result(error, undefined);
     }
 }
+Driver.addDeviceTokens = (driverId,deviceToken, result) => {
+    try {
+const query=`select device_token from driver_device_tokens where driver_id=${driverId}`
 
+        db.query(query, (err, sqlresult) => {
+            if (err) {
+                result(err, undefined)
+            } else {
+                if(sqlresult.map((i)=>(i.device_token)).includes(deviceToken)){
+                    result(undefined, 'Device token already exists');
+                }
+         else{
+
+    const deviceTokenQuery=`INSERT INTO driver_device_tokens (driver_id, device_token,created_at) VALUES (${driverId}, '${deviceToken}','${new Date().toISOString().replace("T", " ").split(".")[0]}')`
+
+    db.query(deviceTokenQuery, (err, deviceTokenResult)=>{
+       if(err){
+           result(err,undefined)
+       }
+       else{
+           result(undefined,deviceTokenResult)
+       }
+    })
+}
+                
+            }
+        })
+    } catch (error) {
+        result(error, undefined)
+    }
+}
 Driver.activeDriver = (data, result)=> {
     try {
         const query = `UPDATE register_driver SET is_active=1 WHERE number='${data}'`;

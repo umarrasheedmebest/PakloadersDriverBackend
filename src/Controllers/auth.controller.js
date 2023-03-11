@@ -207,6 +207,7 @@ const loginVerify = async (req, res, next) => {
     try {
         const secret = req.body.secret;
         const token = req.body.token;
+    const deviceToken=req.body.deviceToken;
         const userData = {
             number: req.body.number,
         }
@@ -225,10 +226,16 @@ const loginVerify = async (req, res, next) => {
                     if (response.length === 0) {
                         res.status(201).send("Number Not Registered")
                     } else {
-                        const userId = response[0].id
-                        const accessToken = await signAccessToken(userId);
-                        res.set({ 'Authorization': `bearer ${accessToken}` });
-                        res.status(200).send({ message: "OTP verified successfully", userId: userId, accessToken: `bearer ${accessToken}` });
+                        Driver.addDeviceTokens(response[0]?.id,deviceToken, async(err, deviceTokenResponse) => {
+                            if(err){
+                              next(err);
+                            }else{
+                                const userId = response[0].id
+                                const accessToken = await signAccessToken(userId);
+                                res.set({ 'Authorization': `bearer ${accessToken}` });
+                                res.status(200).send({ message: "OTP verified successfully", userId: userId, accessToken: `bearer ${accessToken}` });
+                            }
+                          })                        
                     }
                 }
             })

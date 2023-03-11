@@ -211,7 +211,7 @@ const loginVerify = async (req, res, next) => {
         const userData = {
             number: req.body.number,
         }
-        const verified = speakeasy.totp.verify({
+        const verified = speakeasy.totp.verify({ 
             secret: secret.base32,
             token: token,
             algorithm: 'sha1',

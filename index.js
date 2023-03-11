@@ -27,6 +27,10 @@ app.use(express.json());
 app.use("/images", express.static(path.join(__dirname, "/Images")))
 
 // Routes
+app.get('/',(req,res)=>{
+    res.json({message: "Working Node JS!"});
+});
+
 app.use("/auth", authRoute);
 app.use("/driver", driverRoute);
 app.use("/bids", bidsRoute);

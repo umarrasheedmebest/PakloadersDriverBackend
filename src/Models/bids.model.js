@@ -75,5 +75,37 @@ Bids.createBid = (data, result)=> {
         result(error, undefined);
     }
 }
+Bids.DriverName = (driverId, result)=> {
+    try {
+        const query = `SELECT register_driver.full_name FROM register_driver WHERE register_driver.id = ${driverId}`;
+        db.query(query,(err, sqlresult)=> {
+            if(err) {
+                result(err, undefined);
+            } else {
+                result(undefined, sqlresult);
+            }
+        })
+    } catch (error) {
+        result(error, undefined);
+    }
+}
+
+Bids.userDeviceToken = (postId, result)=> {
+    try {
+        const query = `SELECT user_device_tokens.device_token FROM user_device_tokens 
+        JOIN post
+        ON user_device_tokens.user_id=post.user_id
+        WHERE post.id = ${postId}`;
+        db.query(query,(err, sqlresult)=> {
+            if(err) {
+                result(err, undefined);
+            } else {
+                result(undefined, sqlresult);
+            }
+        })
+    } catch (error) {
+        result(error, undefined);
+    }
+}
 
 module.exports = Bids;

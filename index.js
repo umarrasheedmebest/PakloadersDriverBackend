@@ -25,7 +25,7 @@ dotenv.config();
 const authRoute = require('./src/Routes/auth.route');
 const driverRoute = require('./src/Routes/driver.route');
 const bidsRoute = require('./src/Routes/bids.route');
-const ridesRoute = require("./src/Routes/rides.route")(server, io);
+const ridesRoute = require("./src/Routes/rides.route")
 
 // Middlewares
 app.use(cors())

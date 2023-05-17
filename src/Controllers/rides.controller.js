@@ -4,6 +4,7 @@ const startRide = async(req, res, next)=> {
     try {
         const rideId = req.params.id;
         const {longitude, latitude} = req.body;
+        const io = req.app.get("io"); // Retrieve io from the Express app
         Rides.startRide(rideId, (err, response)=> {
             if(err){
                 next(err);
@@ -23,6 +24,7 @@ const startRide = async(req, res, next)=> {
 const endRide = async(req, res, next)=> {
     try {
         const rideId = req.params.id
+        const io = req.app.get("io"); // Retrieve io from the Express app
 
         Rides.endRide(rideId, (err, response)=> {
             if(err){

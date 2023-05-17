@@ -27,7 +27,6 @@ token:token,
 result(err,undefined)     
 
 }else{
-              console.log(resp);
               result(undefined,resp)
           }
       });

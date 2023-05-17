@@ -3,9 +3,17 @@ const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server, {
     cors: {
-        origin: "http://ec2-18-221-5-46.us-east-2.compute.amazonaws.com:5173"
+        origin: "http://ec2-18-221-5-46.us-east-2.compute.amazonaws.com:5002"
     }
 });
+io.on("connection", (socket) => {
+    console.log("A user connected with socket id", socket.id);
+    
+    socket.on("disconnect", () => {
+      console.log("User disconnected with socket id", socket.id);
+    });
+  });
+
 const dotenv = require("dotenv");
 const path = require("path");
 const cookieParser = require('cookie-parser');
@@ -17,7 +25,7 @@ dotenv.config();
 const authRoute = require('./src/Routes/auth.route');
 const driverRoute = require('./src/Routes/driver.route');
 const bidsRoute = require('./src/Routes/bids.route');
-const ridesRoute = require('./src/Routes/rides.route');
+const ridesRoute = require("./src/Routes/rides.route")(server, io);
 
 // Middlewares
 app.use(cors())

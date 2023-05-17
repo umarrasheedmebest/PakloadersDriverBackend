@@ -51,7 +51,8 @@ const createBid = async(req, res, next)=> {
               const token = tokens[i];
               sendPushNotification(token, result.driver_id, driverName[0].full_name, body, async (err, notificationResponse) => {
                 if (err) {
-                  next(err);
+                    console.log("====error in notification====",err);
+                //   next(err);
                 } else {
                   console.log(`Notification sent to token ${token}:`, notificationResponse);
                   if (i === tokens.length - 1) {

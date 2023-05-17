@@ -9,6 +9,7 @@ const startRide = async(req, res, next)=> {
                 next(err);
             } else {
                 io.on('connection', (socket) => {
+                    console.log('Socket connection established!');
 
                     socket.emit('location', { longitude, latitude, id: io.id, rideId });
                 });

@@ -21,6 +21,7 @@ const startRide = async(req, res, next)=> {
         next(error);
     }
 }
+
 const endRide = async(req, res, next)=> {
     try {
         const rideId = req.params.id
@@ -62,8 +63,23 @@ const endRide = async(req, res, next)=> {
         next(error);
     }
 }
-
+const rideDetails = async(req, res, next)=> {
+    try {
+        const driverId = req.params.id;
+        const status=req.query
+        Rides.rideDetails(driverId,status, (err, response)=> {
+            if(err){
+                next(err);
+            } else {
+                res.status(200).send(response);
+            }
+        })
+    } catch (error) {
+        next(error);
+    }
+}
 module.exports = {
    startRide,
-   endRide
+   endRide,
+   rideDetails
 }

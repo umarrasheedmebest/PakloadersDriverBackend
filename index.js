@@ -3,7 +3,7 @@ const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server, {
     cors: {
-        origin: "http://ec2-18-221-5-46.us-east-2.compute.amazonaws.com:5002"
+        origin: "*"
     }
 });
 io.on("connection", (socket) => {
@@ -14,6 +14,49 @@ io.on("connection", (socket) => {
     });
   });
 
+  // Create a dictionary to store the mapping between rideId and socketId
+const rideSocketMap = new Map();
+
+io.on('connection', (socket) => {
+  console.log('Socket connection established!');
+
+  socket.on('locationUpdate', (location) => {
+    const { longitude, latitude, socketId, rideId } = location;
+
+    // Store the mapping between rideId and socketId
+    rideSocketMap.set(rideId, socketId);
+
+    // Create a new event using the same data
+    socket.emit('newLocation', { longitude, latitude, socketId, rideId });
+  });
+
+  socket.on('disconnectSocket', (rideId) => {
+    console.log(`Disconnecting socket for rideId: ${rideId}`);
+
+    // Get the corresponding socketId for the rideId
+    const socketId = rideSocketMap.get(rideId);
+
+    if (socketId) {
+      const targetSocket = io.sockets.sockets.get(socketId);
+
+      if (targetSocket) {
+        targetSocket.disconnect();
+        console.log(`Socket ${socketId} disconnected for rideId: ${rideId} and socketId: ${socketId}`);
+      } else {
+        console.log(`Socket ${socketId} not found for rideId: ${rideId}`);
+      }
+
+      // Remove the mapping from the dictionary
+      rideSocketMap.delete(rideId);
+    } else {
+      console.log(`No socket found for rideId: ${rideId}`);
+    }
+  });
+
+  // Other event listeners and logic
+});
+
+  
 const dotenv = require("dotenv");
 const path = require("path");
 const cookieParser = require('cookie-parser');

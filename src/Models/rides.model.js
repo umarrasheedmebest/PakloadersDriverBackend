@@ -27,7 +27,8 @@ class Rides {
 
 Rides.rideDetails = (driverId,status, result)=> {
     try {
-        const query = `SELECT rides.*,post.pickup_address,post.dropoff_address,post.pickup_date,post.pickup_time,
+        const query = `SELECT rides.*,post.pickup_address,post.dropoff_address,post.pickup_date,post.pickup_time,post.pickup_long,
+        post.pickup_lat,post.dropoff_long,post.dropoff_lat,
         post.image1,post.image2,bids.bid_amount
         FROM rides
         JOIN bids
